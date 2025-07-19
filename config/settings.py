@@ -3,17 +3,14 @@
 import os
 from pathlib import Path
 from dotenv import load_dotenv
-
-# Load environment variables from .env at project root
-env_path = Path(__file__).parent.parent / ".env"
-load_dotenv(dotenv_path=env_path)
+load_dotenv()
 
 
 class Settings:
     # Project info
     PROJECT_NAME: str = os.getenv("PROJECT_NAME", "Jatayu")
     PROJECT_VERSION: str = os.getenv("PROJECT_VERSION", "1.0.0")
-    CURRENT_DEVELOPMENT_ENV: str = os.getenv("CURRENT_DEVELOPMENT_ENV", "development")
+    CURRENT_ENV: str = os.getenv("CURRENT_DEVELOPMENT_ENV", "development")
 
     # Database URLs
     ASYNC_DATABASE_URL: str = os.getenv("ASYNC_DATABASE_URL")
@@ -43,7 +40,9 @@ class Settings:
     # Security & JWT
     SECRET_KEY: str = os.getenv("SECRET_KEY", "super-secret-key")
     ACCESS_TOKEN_EXPIRE_MINUTES: int = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "60"))
-
-
-# single instance to import elsewhere
+    SMTP_EMAIL: str = os.getenv("SMTP_EMAIL")
+    SMTP_PASSWORD: str = os.getenv("SMTP_PASSWORD")
+    SMTP_PORT: int = int(os.getenv("SMTP_PORT", "587"))
+    SMTP_SERVER: str = os.getenv("SMTP_SERVER", "")
+    EMAIL_FROM: str = os.getenv("EMAIL_FROM", SMTP_EMAIL)
 settings = Settings()
