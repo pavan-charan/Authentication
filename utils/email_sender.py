@@ -3,8 +3,11 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.header import Header
 from typing import List
+import logging
 
 from config.settings import settings
+
+logger = logging.getLogger(__name__)
 
 async def send_email(
     recipient_email: str,
@@ -21,6 +24,7 @@ async def send_email(
     Raises an exception if email sending fails.
     """
     if not smtp_email or not smtp_password or not smtp_server:
+        logger.error("SMTP settings (email, password, or server) are not fully configured in .env")
         raise ValueError("SMTP settings (email, password, or server) are not fully configured in .env")
 
     msg = MIMEMultipart("alternative")
@@ -28,8 +32,12 @@ async def send_email(
     msg["To"] = recipient_email
     msg["Subject"] = Header(subject, 'utf-8')
 
-    plain_text_body = body
-    html_body = body
+    plain_text_body = "Please view this email in an HTML-compatible email client."
+    if "<body" in body.lower() and "</body" in body.lower():
+        html_body = body
+    else:
+        plain_text_body = body
+        html_body = f"<html><body><pre>{body}</pre></body></html>"
 
     msg.attach(MIMEText(plain_text_body, "plain", "utf-8"))
     msg.attach(MIMEText(html_body, "html", "utf-8"))
@@ -39,14 +47,13 @@ async def send_email(
             server.starttls()
             server.login(smtp_email, smtp_password)
             server.sendmail(smtp_email, recipient_email, msg.as_string())
-        print(f"Email sent successfully to {recipient_email}")
+        logger.info(f"Email sent successfully to {recipient_email}")
     except smtplib.SMTPAuthenticationError as e:
-        print(f"Failed to send email to {recipient_email}: SMTP Authentication Error - {e}")
+        logger.error(f"Failed to send email to {recipient_email}: SMTP Authentication Error - {e}")
         raise ConnectionRefusedError(f"SMTP authentication failed. Check SMTP_EMAIL and SMTP_PASSWORD in .env. Details: {e}")
     except smtplib.SMTPConnectError as e:
-        print(f"Failed to send email to {recipient_email}: SMTP Connection Error - {e}")
+        logger.error(f"Failed to send email to {recipient_email}: SMTP Connection Error - {e}")
         raise ConnectionRefusedError(f"Could not connect to SMTP server. Check SMTP_SERVER and SMTP_PORT in .env. Details: {e}")
     except Exception as e:
-        print(f"Failed to send email to {recipient_email}: General Email Error - {e}")
+        logger.error(f"Failed to send email to {recipient_email}: General Email Error - {e}")
         raise RuntimeError(f"An unexpected error occurred while sending email. Details: {e}")
-
