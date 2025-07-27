@@ -36,7 +36,7 @@ class Settings:
     CORS_ORIGINS: list[str] = [
         origin.strip() for origin in os.getenv("CORS_ORIGINS", "*").split(",")
     ]
-
+    DEBUG: bool = True
     # Security & JWT
     SECRET_KEY: str = os.getenv("SECRET_KEY", "super-secret-key")
     ACCESS_TOKEN_EXPIRE_MINUTES: int = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "60"))

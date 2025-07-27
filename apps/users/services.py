@@ -1,11 +1,12 @@
 import json
-from datetime import datetime, timedelta, timezone # <--- IMPORT timezone
+from datetime import datetime, timedelta, timezone
 from typing import Optional, List
 import secrets
 import string
 import logging
 
 import bcrypt
+from jose import jwt, JWTError # <--- Make sure JWTError is here
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from pydantic import ValidationError
@@ -21,15 +22,42 @@ from utils.email_sender import send_email
 
 logger = logging.getLogger(__name__)
 
-# Placeholder for JWT creation (will be implemented later or use a library)
-def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
+SECRET_KEY = settings.SECRET_KEY
+ACCESS_TOKEN_EXPIRE_MINUTES = settings.ACCESS_TOKEN_EXPIRE_MINUTES
+
+
+def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
     to_encode = data.copy()
     if expires_delta:
         expire = datetime.now(timezone.utc) + expires_delta
     else:
-        expire = datetime.now(timezone.utc) + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-    to_encode.update({"exp": int(expire.timestamp())}) # Convert to timestamp for JWT 'exp' claim
-    return f"mock_jwt_token_for_{to_encode.get('sub')}_exp_{expire.isoformat()}"
+        expire = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    to_encode.update({"exp": expire, "iat": datetime.now(timezone.utc)})
+
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY)
+    return encoded_jwt
+
+def verify_access_token(token: str) -> Optional[str]: # <--- This function is the one that was problematic
+    """
+    Verifies a JWT token and returns the user's customer_id (subject) if valid.
+    Raises HTTPException for invalid tokens.
+    """
+    try:
+        payload = jwt.decode(token, SECRET_KEY)
+        customer_id: str = payload.get("sub")
+
+        if customer_id is None:
+            logger.warning(f"JWT payload missing 'sub' claim in token.")
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token: User ID missing from payload.")
+
+        return customer_id
+    except JWTError as e:
+        logger.warning(f"JWT verification failed: {e}")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"Invalid authentication credentials: {e}")
+    except Exception as e:
+        logger.error(f"Unexpected error during token verification: {e}", exc_info=True)
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="An unexpected error occurred during token verification.")
+
 
 class UserAuthService:
     @staticmethod
@@ -507,6 +535,8 @@ class UserAuthService:
                     status_code=status.HTTP_403_FORBIDDEN,
                     detail="Onboarding details not yet verified. Please wait for verification."
                 )
+            access_token_data = {"sub": user.customer_id}
+            access_token = create_access_token(access_token_data)
 
             await UserCRUD.update_user_no_commit(db, user, UserUpdate(last_login_at=datetime.now(timezone.utc))) # <--- CHANGE HERE
             logger.info(f"User {user.customer_id} last login updated (staged).")
@@ -526,7 +556,9 @@ class UserAuthService:
                 "status": AccountStatus(user.status).value,
                 "is_onboarded": user.is_onboarded,
                 "redirect_to": redirect_to,
-                "numeric_customer_id": user.numeric_customer_id
+                "numeric_customer_id": user.numeric_customer_id,
+                "access_token": access_token,
+                "token_type": "bearer"
             }
         except HTTPException:
             await db.rollback()
@@ -648,7 +680,8 @@ class UserAuthService:
                     status_code=status.HTTP_403_FORBIDDEN,
                     detail="Onboarding details not yet verified. Please wait for verification."
                 )
-
+            access_token_data = {"sub": user.customer_id}
+            access_token = create_access_token(access_token_data)
             await UserCRUD.update_user_no_commit(db, user, UserUpdate(last_login_at=datetime.now(timezone.utc))) # <--- CHANGE HERE
             logger.info(f"User {user.customer_id} last login updated (staged).")
 
@@ -667,7 +700,9 @@ class UserAuthService:
                 "status": AccountStatus(user.status).value,
                 "is_onboarded": user.is_onboarded,
                 "redirect_to": redirect_to,
-                "numeric_customer_id": user.numeric_customer_id
+                "numeric_customer_id": user.numeric_customer_id,
+                "access_token": access_token,
+                "token_type": "bearer"
             }
         except HTTPException:
             await db.rollback()
@@ -732,7 +767,8 @@ class UserAuthService:
                     status_code=status.HTTP_403_FORBIDDEN,
                     detail="Onboarding details not yet verified. Please wait for verification."
                 )
-
+            access_token_data = {"sub": user.customer_id}
+            access_token = create_access_token(access_token_data)
             await UserCRUD.update_user_no_commit(db, user, UserUpdate(last_login_at=datetime.now(timezone.utc))) # <--- CHANGE HERE
             logger.info(f"User {user.customer_id} last login updated (staged).")
 
@@ -751,7 +787,9 @@ class UserAuthService:
                 "status": AccountStatus(user.status).value,
                 "is_onboarded": user.is_onboarded,
                 "redirect_to": redirect_to,
-                "numeric_customer_id": user.numeric_customer_id
+                "numeric_customer_id": user.numeric_customer_id,
+                "access_token": access_token,
+                "token_type": "bearer"
             }
         except HTTPException:
             await db.rollback()

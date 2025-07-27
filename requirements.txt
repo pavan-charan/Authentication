@@ -1,77 +1,74 @@
-aiofiles==23.2.1
-alembic==1.13.1
-amqp==5.3.1
-annotated-types==0.7.0
-anyio==4.9.0
-async-timeout==5.0.1
-asyncpg==0.29.0
-bcrypt==4.3.0
-billiard==4.2.1
-celery==5.3.6
-certifi==2025.6.15
-cffi==1.17.1
-click==8.2.1
-click-didyoumean==0.3.1
-click-plugins==1.1.1.2
-click-repl==0.3.0
-cryptography==45.0.5
-dnspython==2.7.0
-ecdsa==0.19.1
-email_validator==2.1.1
-fastapi==0.111.0
-fastapi-cli==0.0.8
-h11==0.16.0
-httpcore==1.0.9
-httptools==0.6.4
-httpx==0.27.0
-idna==3.10
-iniconfig==2.1.0
-Jinja2==3.1.6
-kombu==5.5.4
-loguru==0.7.2
-Mako==1.3.10
-markdown-it-py==3.0.0
-MarkupSafe==3.0.2
-mdurl==0.1.2
-orjson==3.10.18
-packaging==25.0
-passlib==1.7.4
-pluggy==1.6.0
-prompt_toolkit==3.0.51
-psycopg-binary==3.2.9
-psycopg2==2.9.10
-psycopg2-binary==2.9.10
-pyasn1==0.6.1
-pycparser==2.22
-pydantic==2.7.1
-pydantic-settings==2.2.1
-pydantic_core==2.18.2
-Pygments==2.19.2
-pytest==8.2.2
-pytest-asyncio==0.23.7
-python-dateutil==2.9.0.post0
-python-dotenv==1.0.1
-python-jose==3.3.0
-python-multipart==0.0.9
-PyYAML==6.0.2
-redis==5.0.4
-rich==14.0.0
-rich-toolkit==0.14.8
-rsa==4.9.1
-sentry-sdk==2.5.1
-shellingham==1.5.4
-six==1.17.0
-sniffio==1.3.1
-SQLAlchemy==2.0.30
-starlette==0.37.2
-typer==0.16.0
-typing_extensions==4.14.1
-tzdata==2025.2
-ujson==5.10.0
-urllib3==2.5.0
-uvicorn==0.29.0
-uvloop==0.21.0
-vine==5.1.0
-watchfiles==1.1.0
-wcwidth==0.2.13
-websockets==15.0.1
+# Core FastAPI and ASGI server
+fastapi
+uvicorn # For serving the application
+
+# Database
+asyncpg # PostgreSQL async driver
+SQLAlchemy==2.0.30 # Core ORM
+psycopg2-binary # PostgreSQL adapter, usually preferred over psycopg2 for direct installation
+
+# Pydantic for data validation and settings management
+pydantic==2.7.1 # Pydantic V2 core
+pydantic-settings==2.2.1 # For settings management (BaseSettings)
+
+# Password Hashing
+bcrypt==4.3.0 # For password hashing
+
+# JWT (JSON Web Tokens)
+python-jose==3.3.0 # For JWT creation and verification
+cryptography==45.0.5 # Backend for python-jose
+email-validator==2.1.1
+# Email Sending
+aiofiles==23.2.1 # For async file operations (if saving files async, otherwise remove)
+python-dotenv==1.0.1 # For loading .env file locally
+# email_validator==2.1.1 # If you use it for email format validation beyond Pydantic's EmailStr (often Pydantic handles this)
+
+# File Uploads (for handling UploadFile content)
+python-multipart==0.0.9 # Required by FastAPI for form-data parsing
+
+# Utility
+typing_extensions==4.14.1 # Often required by Pydantic/FastAPI for newer type hints
+#uvloop==0.21.0 # Optional: Replaces default asyncio event loop for performance
+
+# Optional: If you decide to use background tasks with Celery
+# celery==5.3.6
+# redis==5.0.4 # If using Redis as Celery broker/backend
+# amqp==5.3.1
+# billiard==4.2.1
+# kombu==5.5.4
+# vine==5.1.0
+
+# Optional: If you use Sentry for error tracking
+# sentry-sdk==2.5.1
+
+# Optional: If you have specific needs for rich console output in prod logs
+# rich==14.0.0
+# rich-toolkit==0.14.8 # Likely not needed for basic logging, mostly dev/CLI
+
+
+# Removed (and why):
+# alembic - migration tool, usually run as CLI, not a runtime dependency for the app itself
+# annotated-types - dependency of Pydantic, usually installed automatically
+# anyio - dependency of FastAPI/Starlette, installed automatically
+# async-timeout - dependency of httpx/asyncpg, installed automatically
+# certifi - common dependency, often installed by others
+# cffi - dependency of bcrypt/cryptography, installed automatically
+# click, click-didyoumean, click-plugins, click-repl, typer - CLI tools, not runtime deps
+# dnspython - might be used by email_validator or other network tools, not directly in current code
+# ecdsa, pyasn1, rsa - crypto deps, usually pulled by python-jose if needed
+# h11, httpcore, httptools, httpx, idna, sniffio, urllib3 - HTTP client deps (httpx related), not directly runtime in app logic unless you make external HTTP calls
+# iniconfig - pytest dependency
+# Jinja2, MarkupSafe - Templating, not used in your current API
+# loguru - You opted for Python's standard logging, so loguru isn't strictly needed
+# Mako - Templating, not used
+# markdown-it-py, mdurl, Pygments - Markdown parsing/syntax highlighting, not runtime deps
+# orjson, ujson - Faster JSON, FastAPI can use them if installed but not strict requirements if you don't list
+# packaging - often a dependency of other tools
+# passlib - if not using its specific features (bcrypt directly used)
+# pluggy - pytest dependency
+# prompt_toolkit, wcwidth, shellingham - interactive console tools, not runtime deps
+# pytest, pytest-asyncio - testing framework, not runtime deps
+# python-dateutil - common datetime utility, often pulled by other deps, or not strictly needed
+# psycopg - another PostgreSQL driver, redundant with asyncpg and psycopg2-binary
+# websockets - for websocket servers, not used in current API
+# watchfiles - for uvicorn --reload, not a runtime dep
