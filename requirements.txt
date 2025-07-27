@@ -1,74 +1,43 @@
-# Core FastAPI and ASGI server
-fastapi
-uvicorn # For serving the application
+# FastAPI and Server
+fastapi==0.116.1
+uvicorn==0.35.0  # For serving the application
 
 # Database
-asyncpg # PostgreSQL async driver
-SQLAlchemy==2.0.30 # Core ORM
-psycopg2-binary # PostgreSQL adapter, usually preferred over psycopg2 for direct installation
+asyncpg==0.30.0  # PostgreSQL async driver
+SQLAlchemy==2.0.30  # Core ORM
+psycopg2-binary==2.9.10  # PostgreSQL adapter, usually preferred over psycopg2 for direct installation
 
 # Pydantic for data validation and settings management
-pydantic==1.10.13 # Pydantic V2 core
-pydantic-settings==0.2.5 # For settings management (BaseSettings)
+pydantic==2.9.2  # Updated to V2 for Python 3.13 compatibility
+pydantic-settings==2.6.1  # Updated for settings management (BaseSettings)
 
 # Password Hashing
-bcrypt==4.3.0 # For password hashing
+bcrypt==4.3.0  # For password hashing
 
 # JWT (JSON Web Tokens)
-python-jose==3.3.0 # For JWT creation and verification
-cryptography==45.0.5 # Backend for python-jose
-email-validator==2.1.1
-# Email Sending
-aiofiles==23.2.1 # For async file operations (if saving files async, otherwise remove)
-python-dotenv==1.0.1 # For loading .env file locally
-# email_validator==2.1.1 # If you use it for email format validation beyond Pydantic's EmailStr (often Pydantic handles this)
+python-jose[cryptography]==3.3.0  # For JWT creation and verification
+cryptography==43.0.3  # Backend for python-jose (compatible with python-jose)
+email-validator==2.2.0  # Updated version
+
+# File Operations and Environment
+aiofiles==24.1.0  # Updated for async file operations
+python-dotenv==1.0.1  # For loading .env file locally
 
 # File Uploads (for handling UploadFile content)
-python-multipart==0.0.9 # Required by FastAPI for form-data parsing
+python-multipart==0.0.12  # Updated - Required by FastAPI for form-data parsing
 
 # Utility
-typing_extensions==4.14.1 # Often required by Pydantic/FastAPI for newer type hints
-#uvloop==0.21.0 # Optional: Replaces default asyncio event loop for performance
+typing-extensions==4.12.2  # Updated - Often required by Pydantic/FastAPI for newer type hints
+
+# Optional performance improvements (uncomment if needed)
+# uvloop==0.21.0  # Optional: Replaces default asyncio event loop for performance
 
 # Optional: If you decide to use background tasks with Celery
-# celery==5.3.6
-# redis==5.0.4 # If using Redis as Celery broker/backend
-# amqp==5.3.1
-# billiard==4.2.1
-# kombu==5.5.4
-# vine==5.1.0
+# celery==5.4.0
+# redis==5.2.0  # If using Redis as Celery broker/backend
 
 # Optional: If you use Sentry for error tracking
-# sentry-sdk==2.5.1
+# sentry-sdk==2.19.0
 
 # Optional: If you have specific needs for rich console output in prod logs
-# rich==14.0.0
-# rich-toolkit==0.14.8 # Likely not needed for basic logging, mostly dev/CLI
-
-
-# Removed (and why):
-# alembic - migration tool, usually run as CLI, not a runtime dependency for the app itself
-# annotated-types - dependency of Pydantic, usually installed automatically
-# anyio - dependency of FastAPI/Starlette, installed automatically
-# async-timeout - dependency of httpx/asyncpg, installed automatically
-# certifi - common dependency, often installed by others
-# cffi - dependency of bcrypt/cryptography, installed automatically
-# click, click-didyoumean, click-plugins, click-repl, typer - CLI tools, not runtime deps
-# dnspython - might be used by email_validator or other network tools, not directly in current code
-# ecdsa, pyasn1, rsa - crypto deps, usually pulled by python-jose if needed
-# h11, httpcore, httptools, httpx, idna, sniffio, urllib3 - HTTP client deps (httpx related), not directly runtime in app logic unless you make external HTTP calls
-# iniconfig - pytest dependency
-# Jinja2, MarkupSafe - Templating, not used in your current API
-# loguru - You opted for Python's standard logging, so loguru isn't strictly needed
-# Mako - Templating, not used
-# markdown-it-py, mdurl, Pygments - Markdown parsing/syntax highlighting, not runtime deps
-# orjson, ujson - Faster JSON, FastAPI can use them if installed but not strict requirements if you don't list
-# packaging - often a dependency of other tools
-# passlib - if not using its specific features (bcrypt directly used)
-# pluggy - pytest dependency
-# prompt_toolkit, wcwidth, shellingham - interactive console tools, not runtime deps
-# pytest, pytest-asyncio - testing framework, not runtime deps
-# python-dateutil - common datetime utility, often pulled by other deps, or not strictly needed
-# psycopg - another PostgreSQL driver, redundant with asyncpg and psycopg2-binary
-# websockets - for websocket servers, not used in current API
-# watchfiles - for uvicorn --reload, not a runtime dep
+# rich==13.9.4
