@@ -1,11 +1,12 @@
 # FastAPI and Server
 fastapi==0.116.1
-uvicorn==0.35.0  # For serving the application
+uvicorn[standard]==0.35.0  # For serving the application with all features
 
 # Database
 asyncpg==0.30.0  # PostgreSQL async driver
-SQLAlchemy==2.0.36  # Core ORM - Python 3.13 compatible
-psycopg2-binary==2.9.10  # PostgreSQL adapter, usually preferred over psycopg2 for direct installation
+SQLAlchemy[asyncio]==2.0.36  # Core ORM with async support
+greenlet==3.1.1  # Required for SQLAlchemy async operations
+psycopg2-binary==2.9.10  # Sync PostgreSQL adapter (keep for compatibility)
 
 # Pydantic for data validation and settings management
 pydantic==2.9.2  # Updated to V2 for Python 3.13 compatibility
