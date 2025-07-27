@@ -4,7 +4,7 @@ uvicorn==0.35.0  # For serving the application
 
 # Database
 asyncpg==0.30.0  # PostgreSQL async driver
-SQLAlchemy==2.0.30  # Core ORM
+SQLAlchemy==2.0.36  # Core ORM - Python 3.13 compatible
 psycopg2-binary==2.9.10  # PostgreSQL adapter, usually preferred over psycopg2 for direct installation
 
 # Pydantic for data validation and settings management
