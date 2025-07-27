@@ -9,7 +9,7 @@ psycopg2-binary # PostgreSQL adapter, usually preferred over psycopg2 for direct
 
 # Pydantic for data validation and settings management
 pydantic==1.10.13 # Pydantic V2 core
-pydantic-settings==0.1.1 # For settings management (BaseSettings)
+pydantic-settings==0.2.5 # For settings management (BaseSettings)
 
 # Password Hashing
 bcrypt==4.3.0 # For password hashing
